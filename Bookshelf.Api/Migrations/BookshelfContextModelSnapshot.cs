@@ -40,7 +40,7 @@ namespace Bookshelf.Api.Migrations
 
                     b.HasKey("IdAuthor");
 
-                    b.ToTable("Author");
+                    b.ToTable("Authors");
                 });
 
             modelBuilder.Entity("Bookshelf.AuthorBook", b =>
@@ -49,16 +49,18 @@ namespace Bookshelf.Api.Migrations
 
                     b.Property<Guid>("IdBook");
 
+                    b.Property<Guid?>("BookId");
+
                     b.HasKey("IdAuthor", "IdBook");
 
-                    b.HasIndex("IdBook");
+                    b.HasIndex("BookId");
 
                     b.ToTable("AuthorBook");
                 });
 
             modelBuilder.Entity("Bookshelf.Book", b =>
                 {
-                    b.Property<Guid>("IdBook")
+                    b.Property<Guid>("BookId")
                         .ValueGeneratedOnAdd();
 
                     b.Property<string>("Ddcn");
@@ -75,7 +77,7 @@ namespace Bookshelf.Api.Migrations
 
                     b.Property<short>("Permission");
 
-                    b.Property<Guid>("Publisher");
+                    b.Property<Guid>("PublisherId");
 
                     b.Property<string>("Subtitle");
 
@@ -83,33 +85,48 @@ namespace Bookshelf.Api.Migrations
 
                     b.Property<int>("Uid");
 
-                    b.HasKey("IdBook");
+                    b.HasKey("BookId");
+
+                    b.HasIndex("PublisherId");
 
                     b.ToTable("Books");
                 });
 
             modelBuilder.Entity("Bookshelf.Publisher", b =>
                 {
-                    b.Property<Guid>("IdPublisher")
+                    b.Property<Guid>("PublisherId")
                         .ValueGeneratedOnAdd();
+
+                    b.Property<DateTime>("CreatedOn");
+
+                    b.Property<bool>("IsActive");
 
                     b.Property<string>("Name");
 
-                    b.HasKey("IdPublisher");
+                    b.Property<DateTime>("UpdatedOn");
 
-                    b.ToTable("Publisher");
+                    b.HasKey("PublisherId");
+
+                    b.ToTable("Publishers");
                 });
 
             modelBuilder.Entity("Bookshelf.AuthorBook", b =>
                 {
+                    b.HasOne("Bookshelf.Book", "Book")
+                        .WithMany("Authors")
+                        .HasForeignKey("BookId");
+
                     b.HasOne("Bookshelf.Author", "Author")
                         .WithMany()
                         .HasForeignKey("IdAuthor")
                         .OnDelete(DeleteBehavior.Cascade);
+                });
 
-                    b.HasOne("Bookshelf.Book", "Book")
-                        .WithMany("Authors")
-                        .HasForeignKey("IdBook")
+            modelBuilder.Entity("Bookshelf.Book", b =>
+                {
+                    b.HasOne("Bookshelf.Publisher", "Publisher")
+                        .WithMany("Books")
+                        .HasForeignKey("PublisherId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 #pragma warning restore 612, 618

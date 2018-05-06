@@ -4,12 +4,12 @@ using System.Collections.Generic;
 
 namespace Bookshelf.Api.Migrations
 {
-    public partial class InitialCreate : Migration
+    public partial class Trunk : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
-                name: "Author",
+                name: "Authors",
                 columns: table => new
                 {
                     IdAuthor = table.Column<Guid>(nullable: false),
@@ -23,14 +23,29 @@ namespace Bookshelf.Api.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Author", x => x.IdAuthor);
+                    table.PrimaryKey("PK_Authors", x => x.IdAuthor);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Publishers",
+                columns: table => new
+                {
+                    PublisherId = table.Column<Guid>(nullable: false),
+                    CreatedOn = table.Column<DateTime>(nullable: false),
+                    IsActive = table.Column<bool>(nullable: false),
+                    Name = table.Column<string>(nullable: true),
+                    UpdatedOn = table.Column<DateTime>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Publishers", x => x.PublisherId);
                 });
 
             migrationBuilder.CreateTable(
                 name: "Books",
                 columns: table => new
                 {
-                    IdBook = table.Column<Guid>(nullable: false),
+                    BookId = table.Column<Guid>(nullable: false),
                     Ddcn = table.Column<string>(nullable: true),
                     Gid = table.Column<int>(nullable: false),
                     IdObject = table.Column<Guid>(nullable: false),
@@ -38,26 +53,20 @@ namespace Bookshelf.Api.Migrations
                     Isbn13 = table.Column<string>(nullable: true),
                     Pages = table.Column<short>(nullable: false),
                     Permission = table.Column<short>(nullable: false),
-                    Publisher = table.Column<Guid>(nullable: false),
+                    PublisherId = table.Column<Guid>(nullable: false),
                     Subtitle = table.Column<string>(nullable: true),
                     Title = table.Column<string>(nullable: true),
                     Uid = table.Column<int>(nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Books", x => x.IdBook);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Publisher",
-                columns: table => new
-                {
-                    IdPublisher = table.Column<Guid>(nullable: false),
-                    Name = table.Column<string>(nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Publisher", x => x.IdPublisher);
+                    table.PrimaryKey("PK_Books", x => x.BookId);
+                    table.ForeignKey(
+                        name: "FK_Books_Publishers_PublisherId",
+                        column: x => x.PublisherId,
+                        principalTable: "Publishers",
+                        principalColumn: "PublisherId",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -65,29 +74,35 @@ namespace Bookshelf.Api.Migrations
                 columns: table => new
                 {
                     IdAuthor = table.Column<Guid>(nullable: false),
-                    IdBook = table.Column<Guid>(nullable: false)
+                    IdBook = table.Column<Guid>(nullable: false),
+                    BookId = table.Column<Guid>(nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_AuthorBook", x => new { x.IdAuthor, x.IdBook });
                     table.ForeignKey(
-                        name: "FK_AuthorBook_Author_IdAuthor",
-                        column: x => x.IdAuthor,
-                        principalTable: "Author",
-                        principalColumn: "IdAuthor",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_AuthorBook_Books_IdBook",
-                        column: x => x.IdBook,
+                        name: "FK_AuthorBook_Books_BookId",
+                        column: x => x.BookId,
                         principalTable: "Books",
-                        principalColumn: "IdBook",
+                        principalColumn: "BookId",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_AuthorBook_Authors_IdAuthor",
+                        column: x => x.IdAuthor,
+                        principalTable: "Authors",
+                        principalColumn: "IdAuthor",
                         onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_AuthorBook_IdBook",
+                name: "IX_AuthorBook_BookId",
                 table: "AuthorBook",
-                column: "IdBook");
+                column: "BookId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Books_PublisherId",
+                table: "Books",
+                column: "PublisherId");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
@@ -96,13 +111,13 @@ namespace Bookshelf.Api.Migrations
                 name: "AuthorBook");
 
             migrationBuilder.DropTable(
-                name: "Publisher");
-
-            migrationBuilder.DropTable(
-                name: "Author");
-
-            migrationBuilder.DropTable(
                 name: "Books");
+
+            migrationBuilder.DropTable(
+                name: "Authors");
+
+            migrationBuilder.DropTable(
+                name: "Publishers");
         }
     }
 }

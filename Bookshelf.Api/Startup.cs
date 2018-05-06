@@ -10,6 +10,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.EntityFrameworkCore;
 using Bookshelf.Api.Models;
+using Newtonsoft.Json;
 
 namespace Bookshelf.Api
 {
@@ -25,7 +26,7 @@ namespace Bookshelf.Api
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddMvc();
+            services.AddMvc().AddJsonOptions(options => options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore);
             services.AddDbContext<BookshelfContext>(options => options.UseSqlite("Data Source=Bookshelf.db"));
         }
 

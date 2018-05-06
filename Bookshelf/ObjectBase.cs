@@ -2,7 +2,7 @@ using System;
 
 namespace Bookshelf
 {
-    public abstract class BaseObject
+    public abstract class ObjectBase
     {
         public Guid IdObject { get; set; }
         public Int32 Uid { get; set; }
